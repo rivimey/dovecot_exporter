@@ -1,0 +1,10 @@
+---
+
+- include: install-dovecot-exporter.yml
+- include: configure-dovecot-exporter.yml
+
+- name: Start and enable the dovecot-exporter service
+  service:
+    name: dovecot_exporter
+    state: started
+    enabled: true

@@ -1,0 +1,32 @@
+description "dovecot_exporter"
+start on runlevel [2345]
+stop on runlevel [06]
+
+env DOVECOT_EXPORTER={{ dovecot_exporter_bin_path }}/dovecot_exporter
+env USER={{ dovecot_exporter_user }}
+env GROUP={{ dovecot_exporter_group }}
+env DEFAULTS=/etc/default/dovecot_exporter
+env RUNDIR=/var/run/dovecot_exporter
+env PID_FILE=/var/run/dovecot_exporter/dovecot_exporter.pid
+
+pre-start script
+  [ -e $DEFAULTS ] && . $DEFAULTS
+
+  mkdir -p $RUNDIR           || true
+  chmod 0750 $RUNDIR         || true
+  chown $USER:$GROUP $RUNDIR || true
+end script
+
+script
+    # read settings from "/etc/default/dovecot_exporter", if available.
+    [ -e $DEFAULTS ] && . $DEFAULTS
+
+    exec start-stop-daemon -c $USER -g $GROUP -p $PID_FILE -x $DOVECOT_EXPORTER -S -- \
+      --web.listen-address {{ dovecot_exporter_listen_address }} \
+      --log.level {{ dovecot_exporter_log_level }} \
+      {{ dovecot_exporter_additional_cli_args }}
+end script
+
+respawn
+respawn limit 10 10
+kill timeout 10

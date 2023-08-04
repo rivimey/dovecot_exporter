@@ -1,0 +1,36 @@
+[Unit]
+Description=dovecot_exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ dovecot_exporter_user }}
+Group={{ dovecot_exporter_group }}
+Type=simple
+ExecStart={{ dovecot_exporter_bin_path }}/dovecot_exporter \
+    --web.listen-address {{ dovecot_exporter_listen_address }} \
+    --log.level {{ dovecot_exporter_log_level }}{% if dovecot_exporter_additional_cli_args | length > 0 %} \
+    {% endif -%}
+    {{ dovecot_exporter_additional_cli_args }}
+Restart=always
+
+ProtectHome=true
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+PrivateDevices=true
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+SystemCallFilter=~@obsolete
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+
+[Install]
+WantedBy=multi-user.target

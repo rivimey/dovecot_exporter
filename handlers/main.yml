@@ -1,0 +1,17 @@
+---
+
+- name: restart dovecot_exporter
+  service:
+    name: dovecot_exporter
+    state: restarted
+
+- name: reload dovecot_exporter
+  service:
+    name: dovecot_exporter
+    state: reloaded
+
+- name: reload systemd and restart dovecot_exporter
+  command: systemctl daemon-reload
+  notify: restart dovecot_exporter
+  tags:
+    - skip_ansible_lint

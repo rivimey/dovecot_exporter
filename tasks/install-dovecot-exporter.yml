@@ -1,0 +1,68 @@
+---
+
+- name: Create the dovecot-exporter group
+  group:
+    name: "{{ dovecot_exporter_group }}"
+    state: present
+
+- name: Create the dovecot-exporter user
+  user:
+    name: "{{ dovecot_exporter_user }}"
+    state: present
+
+- block:
+  - name: Make sure the dovecot-exporter install directory exists
+    file:
+      dest: "{{ dovecot_exporter_install_path }}"
+      state: directory
+      owner: "root"
+      group: "root"
+      mode: 0755
+      recurse: true
+
+  - include: github-dovecot-exporter-release.yml
+    when: not dovecot_exporter_release_url
+
+  - name: Get the name of the dovecot-exporter release archive
+    set_fact:
+      _dovecot_exporter_archive: "{{ dovecot_exporter_release_url | basename }}"
+
+  - name: Set the dovecot-exporter installation path
+    set_fact:
+      _dovecot_exporter_install_path: "{{ dovecot_exporter_install_path }}/{{ _dovecot_exporter_archive | regex_replace('\\.zip|\\.gz|\\.tar|\\.tgz|\\.bzip','') }}"
+
+  - name: Download the dovecot-exporter
+    unarchive:
+      src: "{{ dovecot_exporter_release_url }}"
+      dest: "{{ dovecot_exporter_install_path }}"
+      creates: "{{ _dovecot_exporter_install_path }}/dovecot_exporter"
+      remote_src: yes
+  - name: Symlink the dovecot-exporter binaries
+    file:
+      src: "{{ _dovecot_exporter_install_path }}/{{ item }}"
+      dest: "{{ dovecot_exporter_bin_path }}/{{ item }}"
+      state: link
+    notify: restart dovecot_exporter
+    with_items:
+      - dovecot_exporter
+
+  when: dovecot_exporter_install_github |default(yes)
+
+- name: Create node-exporter bin directory
+  ansible.builtin.file:
+    path: "{{ dovecot_exporter_bin_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install the dovecot-exporter binaries locally
+  copy:
+    src: "{{ dovecot_exporter_local_path }}/dovecot_exporter"
+    dest: "{{ dovecot_exporter_bin_path }}/dovecot_exporter"
+    owner: "root"
+    group: "root"
+    mode: 0755
+  notify: restart dovecot_exporter
+  when: not (dovecot_exporter_install_github |default(yes))
+

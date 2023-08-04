@@ -1,0 +1,28 @@
+---
+
+# The dovecot-exporter release to be installed
+dovecot_exporter_release_tag: "latest"
+
+# The URL from which download the dovecot-exporter release
+dovecot_exporter_release_url: ""
+
+# dovecot-exporter user and group
+dovecot_exporter_user: "dovecot_exporter"
+dovecot_exporter_group: "dovecot_exporter"
+
+# Directory containing the downloaded dovecot-exporter release
+dovecot_exporter_install_github: no
+dovecot_exporter_install_path: "/opt"
+dovecot_exporter_local_path: "files"
+
+# Directory to which symlink the installed dovecot-exporter binaries
+dovecot_exporter_bin_path: "/usr/local/bin"
+
+# dovecot-exporter listen address
+dovecot_exporter_listen_address: "127.0.0.1:9100"
+
+# dovecot-exporter log level
+dovecot_exporter_log_level: "info"
+
+# Additional command-line arguments to be added to the dovecot-exporter unit
+dovecot_exporter_additional_cli_args: ""
